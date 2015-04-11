@@ -6,8 +6,8 @@ QUnit.test("四条测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(player1.isFour(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(set1.isFour(), set1.show());
 });
 
 QUnit.test("四条测试", function(assert) {
@@ -17,8 +17,8 @@ QUnit.test("四条测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(!player1.isFour(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(!set1.isFour(), set1.show());
 });
 
 QUnit.test("四条测试", function(assert) {
@@ -28,8 +28,8 @@ QUnit.test("四条测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(player1.isFour(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(set1.isFour(), set1.show());
 });
 
 QUnit.test("三条测试", function(assert) {
@@ -39,8 +39,8 @@ QUnit.test("三条测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(player1.isTree(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(set1.isTree(), set1.show());
 });
 
 QUnit.test("顺子测试", function(assert) {
@@ -50,8 +50,8 @@ QUnit.test("顺子测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(!player1.isSorted(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(!set1.isStraight(), set1.show());
 });
 
 QUnit.test("顺子测试", function(assert) {
@@ -61,8 +61,8 @@ QUnit.test("顺子测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(player1.isSorted(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(set1.isStraight(), set1.show());
 });
 
 QUnit.test("顺子测试", function(assert) {
@@ -72,8 +72,8 @@ QUnit.test("顺子测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(player1.isSorted(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(set1.isStraight(), set1.show());
 });
 
 QUnit.test("同花测试", function(assert) {
@@ -83,8 +83,8 @@ QUnit.test("同花测试", function(assert) {
 		poker.push(c);
 	};
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(player1.isSameColor(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(set1.isSameColor(), set1.show());
 });
 
 QUnit.test("同花测试", function(assert) {
@@ -95,6 +95,6 @@ QUnit.test("同花测试", function(assert) {
 	};
 	poker.push(new card(1));
 	shuffe(poker);
-	var player1 = new player(poker);
-	assert.ok(!player1.isSameColor(), player1.show());
+	var set1 = new set(poker);
+	assert.ok(!set1.isSameColor(), set1.show());
 });

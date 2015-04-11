@@ -3,7 +3,7 @@ Color.SPADE = 1
 Color.HEART = 2
 Color.PLUM = 3
 Color.DIAMOND = 4
-
+var COMBOX_8to5 = combination(8, 5);// 8取5的各种组合
 function card(value) {
 	this.val = value;
 	// ♦♣♥♠
@@ -41,10 +41,11 @@ function shuffe(card_arr) {
 	};
 }
 
-// 玩家(5张手牌，3张公牌)
-function player(card_arr, commonCard) {
+// 一套牌(5张手牌，3张公牌)
+function set(card_arr, commonCard) {
 	this.commonCard = commonCard;
 	this.rawCard = card_arr.concat();
+
 	this.init = function(card_arr) {
 		this.cards = card_arr;
 		this.cards.sort(function(a, b) {
@@ -88,11 +89,11 @@ function player(card_arr, commonCard) {
 			};
 		}
 		// return "手牌："+showMessage.join("-") + "   /  公牌:" + commomMessage.join("-")  + " @原积分:" + this.rawResult + " 最佳组合： " + maxMessage.join("-") + "  @最佳积分:" + this.maxResult;
-		return "手牌："+showMessage.join("-") + "   +  公牌:" + commomMessage.join("-")  + " = 最佳组合： " + maxMessage.join("-") ;
+		return "手牌：" + showMessage.join("-") + (commomMessage.length > 0 ? "   +  公牌:" + commomMessage.join("-") : "") + (maxMessage.length > 0 ? " = 最佳组合： " + maxMessage.join("-") : "")+ "  @:" + this.maxResult;
 	};
 
 	// 是否为顺子
-	this.isSorted = function() {
+	this.isStraight = function() {
 		var f = this.cards[0];
 		for (var i = 1; i < this.cards.length; i++) {
 			if (this.cards[i].view - this.cards[i - 1].view != 1) {
@@ -129,6 +130,11 @@ function player(card_arr, commonCard) {
 			}
 		}
 		return flg;
+	};
+
+	// 是否为满堂红:三张同一点数的牌，加一对其他点数的牌。
+	this.isFullhouse = function() {
+		return this.isTree() && this.twoVal > 0
 	}
 
 	// 是否为同花
@@ -142,7 +148,7 @@ function player(card_arr, commonCard) {
 	}
 
 	// 是否带两对
-	this.CountDouble = function() {
+	this.isTwoPairs = function() {
 		this.twoVal_max = 0;
 		this.twoVal_min = 0;
 		var count = 0;
@@ -167,32 +173,25 @@ function player(card_arr, commonCard) {
 	this.maxCalculate = function() {
 		if (!this.commonCard) {
 			this.maxCards = this.cards.concat();
-			return this.calculate();
+			this.maxResult = this.calculate();
 		} else {
 			var all_card = this.rawCard.concat(this.commonCard)
 			this.maxResult = 0;
-			for (var i = 0; i < 8; i++) {
-				for (var j = 0; j < 8; j++) {
-					for (var k = 0; k < 8; k++) {
-						if (i != j && j != k && k != i) {
-							var cards = [];
-							for (var q = 0; q < 8; q++) {
-								if (q != i && q != j && q != k) {
-									cards.push(all_card[q]);
-								}
-							}
-							this.init(cards);
-							var r = this.calculate();
-							if (r > this.maxResult) {
-								this.maxResult = r;
-								this.maxCards = this.cards.concat();
-							}
-						}
-					}
+			for (var i = 0; i < COMBOX_8to5.length; i++) {
+				var cards = [];
+				for (var j = 0; j < COMBOX_8to5[i].length; j++) {
+					cards.push(all_card[COMBOX_8to5[i][j]]);
+				};
+				this.init(cards);
+				var r = this.calculate();
+				if (r > this.maxResult) {
+					this.maxResult = r;
+					this.maxCards = this.cards.concat();
 				}
 			}
 		}
-	}
+	};
+
 
 	// 根据当前牌的组合计算分数
 	this.calculate = function() {
@@ -200,7 +199,7 @@ function player(card_arr, commonCard) {
 		var result = 0;
 		var curLev = 9;
 		// 同花顺
-		if (this.isSameColor() && this.isSorted()) {
+		if (this.isSameColor() && this.isStraight()) {
 			result = result + lev[curLev];
 			result = result + (4 - this.cards[0].color) * lev[curLev - 1];
 			result = result + this.maxView * lev[curLev - 2];
@@ -216,8 +215,8 @@ function player(card_arr, commonCard) {
 		}
 		curLev--;
 
-		// 三条带对子
-		if (this.isTree() && this.twoVal > 0) {
+		// 满堂红
+		if (this.isFullhouse()) {
 			result = result + lev[curLev];
 			result = result + this.treeVal * lev[curLev - 1];
 			result = result + this.twoVal * lev[curLev - 2];
@@ -235,7 +234,7 @@ function player(card_arr, commonCard) {
 		curLev--;
 
 		// 顺子
-		if (this.isSorted()) {
+		if (this.isStraight()) {
 			result = result + lev[curLev];
 			result = result + this.maxView * lev[curLev - 1];
 			result = result + (4 - this.cards[4].color) * lev[curLev - 2];
@@ -252,7 +251,7 @@ function player(card_arr, commonCard) {
 		curLev--;
 
 		// 带两个对子
-		if (this.CountDouble() == 2) {
+		if (this.isTwoPairs() == 2) {
 			result = result + lev[curLev];
 			result = result + this.twoVal_max * lev[curLev - 1];
 			result = result + this.twoVal_min * lev[curLev - 2];
@@ -261,7 +260,7 @@ function player(card_arr, commonCard) {
 		curLev--;
 
 		// 带一个对子
-		if (this.CountDouble() == 1) {
+		if (this.isTwoPairs() == 1) {
 			result = result + lev[curLev];
 			result = result + this.twoVal_max * lev[curLev - 1];
 			return result;
