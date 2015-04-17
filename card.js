@@ -43,16 +43,14 @@ function shuffe(card_arr) {
 
 // 一套牌(5张手牌，3张公牌)
 function set(card_arr, commonCard) {
-	this.commonCard = commonCard;
-	this.rawCard = card_arr.concat();
-
-	this.init = function(card_arr) {
+	this.rawCards = card_arr;
+	this.update = function(card_arr) {
 		this.cards = card_arr;
 		this.cards.sort(function(a, b) {
 			return a.view - b.view;
 		});
 
-		this.map = new Object();
+		this.map = {};
 		this.maxView = 0;
 		this.maxVal = 0;
 		for (var i = 0; i < this.cards.length; i++) {
@@ -70,26 +68,21 @@ function set(card_arr, commonCard) {
 		};
 	}
 
+	if(card_arr.length == 5){
+		this.update(card_arr);
+	}
+
 	// 输出调试信息
 	this.show = function() {
-		var showMessage = [];
-		for (var i = 0; i < this.rawCard.length; i++) {
-			showMessage.push(this.rawCard[i].toString());
-		};
-		var commomMessage = [];
-		if (this.commonCard) {
-			for (var i = 0; i < this.commonCard.length; i++) {
-				commomMessage.push(this.commonCard[i].toString());
-			}
-		}
-		var maxMessage = [];
+		var ret = ""
 		if (this.maxCards) {
+			var maxMessage = [];
 			for (var i = 0; i < this.maxCards.length; i++) {
 				maxMessage.push(this.maxCards[i].toString());
 			};
+			ret = ret + " 最佳组合： " + maxMessage.join("-") + "  @:" + this.maxResult;
 		}
-		// return "手牌："+showMessage.join("-") + "   /  公牌:" + commomMessage.join("-")  + " @原积分:" + this.rawResult + " 最佳组合： " + maxMessage.join("-") + "  @最佳积分:" + this.maxResult;
-		return "手牌：" + showMessage.join("-") + (commomMessage.length > 0 ? "   +  公牌:" + commomMessage.join("-") : "") + (maxMessage.length > 0 ? " = 最佳组合： " + maxMessage.join("-") : "")+ "  @:" + this.maxResult;
+		return ret;
 	};
 
 	// 是否为顺子
@@ -171,23 +164,18 @@ function set(card_arr, commonCard) {
 
 	// 计算最佳组合(this.calculate计算的最高分数为最佳组合)
 	this.maxCalculate = function() {
-		if (!this.commonCard) {
-			this.maxCards = this.cards.concat();
-			this.maxResult = this.calculate();
-		} else {
-			var all_card = this.rawCard.concat(this.commonCard)
-			this.maxResult = 0;
-			for (var i = 0; i < COMBOX_8to5.length; i++) {
-				var cards = [];
-				for (var j = 0; j < COMBOX_8to5[i].length; j++) {
-					cards.push(all_card[COMBOX_8to5[i][j]]);
-				};
-				this.init(cards);
-				var r = this.calculate();
-				if (r > this.maxResult) {
-					this.maxResult = r;
-					this.maxCards = this.cards.concat();
-				}
+		var all_card = card_arr.concat(commonCard)
+		this.maxResult = 0;
+		for (var i = 0; i < COMBOX_8to5.length; i++) {
+			var cards = [];
+			for (var j = 0; j < COMBOX_8to5[i].length; j++) {
+				cards.push(all_card[COMBOX_8to5[i][j]]);
+			};
+			this.update(cards);
+			var r = this.calculate();
+			if (r > this.maxResult) {
+				this.maxResult = r;
+				this.maxCards = this.cards.concat();
 			}
 		}
 	};
@@ -271,7 +259,4 @@ function set(card_arr, commonCard) {
 		return result;
 
 	}
-	this.init(card_arr);
-	this.rawResult = this.calculate();
-	this.maxResult = this.rawResult;
 }
